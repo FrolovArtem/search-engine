@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: search-engine
+    env: java
+    buildCommand: mvn clean package -DskipTests
+    startCommand: java -jar target/SearchEngine-1.0.0.jar
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: DATABASE_URL
+        fromDatabase:
+          name: search-engine-db
+          property: connectionString
