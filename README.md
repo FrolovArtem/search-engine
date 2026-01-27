@@ -31,8 +31,8 @@ Spring Boot приложение, которое:
 ### Шаг 1: Клонирование репозитория
 
 ```bash
-git clone https://github.com/ваш-username/SearchEngine.git
-cd SearchEngine
+git clone https://github.com/FrolovArtem/search-engine.git
+cd search-engine
 ```
 
 ### Шаг 2: Создание базы данных
