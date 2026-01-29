@@ -1,0 +1,38 @@
+databaseChangeLog:
+  - changeSet:
+      id: 3
+      author: searchengine
+      changes:
+        - createTable:
+            tableName: lemma
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: site_id
+                  type: int
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_lemma_site
+                    references: site(id)
+              - column:
+                  name: lemma
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: frequency
+                  type: int
+                  constraints:
+                    nullable: false
+        - createIndex:
+            indexName: idx_lemma
+            tableName: lemma
+            columns:
+              - column:
+                  name: lemma

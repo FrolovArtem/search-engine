@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import searchengine.config.Site;
 import searchengine.config.SitesList;
+import searchengine.exception.IndexingAlreadyStartedException;
+import searchengine.exception.IndexingNotStartedException;
 import searchengine.model.IndexingStatus;
 import searchengine.model.SiteEntity;
 import searchengine.repository.*;
@@ -32,10 +34,10 @@ public class IndexingService {
     private final AtomicBoolean indexingInProgress = new AtomicBoolean(false);
     private ForkJoinPool forkJoinPool;
     
-    public boolean startIndexing() {
+    public void startIndexing() {
         if (indexingInProgress.get()) {
             log.warn("Попытка запуска индексации, но она уже выполняется");
-            return false;
+            throw new IndexingAlreadyStartedException("Индексация уже запущена");
         }
         
         log.info("Запуск полной индексации всех сайтов");
@@ -50,8 +52,6 @@ public class IndexingService {
                 cleanupResources();
             }
         }).start();
-        
-        return true;
     }
     
     private void performIndexing() {
@@ -80,10 +80,10 @@ public class IndexingService {
         }
     }
     
-    public boolean stopIndexing() {
+    public void stopIndexing() {
         if (!indexingInProgress.get()) {
             log.warn("Попытка остановки индексации, но она не запущена");
-            return false;
+            throw new IndexingNotStartedException("Индексация не запущена");
         }
         
         log.info("Остановка индексации по запросу пользователя");
@@ -92,8 +92,6 @@ public class IndexingService {
             forkJoinPool.shutdownNow();
             log.info("ForkJoinPool принудительно остановлен");
         }
-        
-        return true;
     }
     
     public boolean isIndexing() {

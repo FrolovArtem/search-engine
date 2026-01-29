@@ -14,7 +14,8 @@ Spring Boot приложение, которое:
 ## 🚀 Технологии
 
 - **Backend:** Java 11, Spring Boot 2.7.18
-- **Database:** MySQL 8.0, Spring Data JPA, Hibernate
+- **Database:** PostgreSQL 14+ (или MySQL 8.0 для обратной совместимости)
+- **Migrations:** Liquibase
 - **HTML Parser:** JSOUP 1.17.2
 - **Build Tool:** Maven
 - **Frontend:** HTML, CSS, JavaScript
@@ -23,7 +24,7 @@ Spring Boot приложение, которое:
 ## ⚙️ Требования
 
 - JDK 11 или выше
-- MySQL 8.0 или выше
+- PostgreSQL 14 или выше (или MySQL 8.0)
 - Maven 3.6 или выше
 
 ## 🏁 Быстрый старт
@@ -37,7 +38,15 @@ cd search-engine
 
 ### Шаг 2: Создание базы данных
 
-Выполните SQL скрипт:
+**Для PostgreSQL (рекомендуется):**
+
+```bash
+psql -U postgres
+CREATE DATABASE search_engine;
+\q
+```
+
+**Или для MySQL:**
 
 ```bash
 mysql -u root -p < database.sql
@@ -53,20 +62,31 @@ CREATE DATABASE search_engine CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 Отредактируйте `src/main/resources/application.yaml`:
 
+**Для PostgreSQL:**
+```yaml
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/search_engine
+    username: postgres
+    password: your_password
+```
+
+**Для MySQL:**
 ```yaml
 spring:
   datasource:
     url: jdbc:mysql://localhost:3306/search_engine
-    username: root          # ваш пользователь MySQL
-    password: root          # ваш пароль MySQL
-
-indexing-settings:
-  sites:
-    - url: https://www.example.com
-      name: Example Site
+    username: root
+    password: your_password
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
 ```
 
-**⚠️ Важно:** Для тестирования используйте небольшие сайты!
+**⚠️ Важно:** 
+- Liquibase автоматически создаст все таблицы при первом запуске
+- Для тестирования используйте небольшие сайты!
 
 ### Шаг 4: Сборка проекта
 

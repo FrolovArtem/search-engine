@@ -1,0 +1,43 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2
+      author: searchengine
+      changes:
+        - createTable:
+            tableName: page
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: site_id
+                  type: int
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_page_site
+                    references: site(id)
+              - column:
+                  name: path
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: code
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: content
+                  type: text
+                  constraints:
+                    nullable: false
+        - createIndex:
+            indexName: idx_path
+            tableName: page
+            columns:
+              - column:
+                  name: path

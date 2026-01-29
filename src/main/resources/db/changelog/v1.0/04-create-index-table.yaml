@@ -1,0 +1,34 @@
+databaseChangeLog:
+  - changeSet:
+      id: 4
+      author: searchengine
+      changes:
+        - createTable:
+            tableName: index
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: page_id
+                  type: int
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_index_page
+                    references: page(id)
+              - column:
+                  name: lemma_id
+                  type: int
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_index_lemma
+                    references: lemma(id)
+              - column:
+                  name: rank
+                  type: float
+                  constraints:
+                    nullable: false

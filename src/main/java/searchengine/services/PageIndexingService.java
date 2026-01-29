@@ -8,10 +8,10 @@ import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Service;
 import searchengine.config.Site;
 import searchengine.config.SitesList;
+import searchengine.exception.PageOutOfScopeException;
 import searchengine.model.*;
 import searchengine.repository.*;
 
-import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -25,19 +25,23 @@ public class PageIndexingService {
     private final PageIndexer pageIndexer;
     private final SitesList sitesList;
     
-    public boolean indexPage(String url) {
+    public void indexPage(String url) {
         log.info("Запрос на индексацию страницы: {}", url);
         
         Site configSite = findSiteInConfig(url);
         if (configSite == null) {
             log.warn("Страница {} не принадлежит ни одному сайту из конфигурации", url);
-            return false;
+            throw new PageOutOfScopeException(
+                "Данная страница находится за пределами сайтов, указанных в конфигурационном файле"
+            );
         }
         
         Optional<SiteEntity> siteEntityOpt = siteRepository.findByUrl(configSite.getUrl());
         if (siteEntityOpt.isEmpty()) {
             log.warn("Сайт {} не найден в базе данных", configSite.getUrl());
-            return false;
+            throw new PageOutOfScopeException(
+                "Данная страница находится за пределами сайтов, указанных в конфигурационном файле"
+            );
         }
         
         SiteEntity site = siteEntityOpt.get();
@@ -76,11 +80,9 @@ public class PageIndexingService {
                 log.info("Страница {} успешно проиндексирована", url);
             }
             
-            return true;
-            
         } catch (Exception e) {
             log.error("Ошибка при индексации страницы {}: {}", url, e.getMessage(), e);
-            return false;
+            throw new RuntimeException("Ошибка при индексации страницы: " + e.getMessage());
         }
     }
     

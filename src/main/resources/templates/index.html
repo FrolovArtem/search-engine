@@ -4,25 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Поисковый движок</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; background: #f5f5f5; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-        .tab { padding: 10px 20px; background: white; border: none; cursor: pointer; border-radius: 5px; }
-        .tab.active { background: #007bff; color: white; }
-        .tab-content { display: none; background: white; padding: 20px; border-radius: 5px; }
-        .tab-content.active { display: block; }
-        h1 { margin-bottom: 20px; }
-        .stats-grid { display: grid; gap: 15px; }
-        .stat-item { padding: 15px; background: #f8f9fa; border-radius: 5px; }
-        button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        button:hover { background: #0056b3; }
-        input, select { padding: 10px; border: 1px solid #ddd; border-radius: 5px; width: 100%; }
-        .search-form { display: flex; gap: 10px; margin-bottom: 20px; }
-        .search-results { margin-top: 20px; }
-        .search-item { padding: 15px; background: #f8f9fa; border-radius: 5px; margin-bottom: 10px; }
-    </style>
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
     <div class="container">
@@ -62,91 +44,6 @@
         </div>
     </div>
     
-    <script>
-        function showTab(tabName) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            event.target.classList.add('active');
-            document.getElementById(tabName).classList.add('active');
-            
-            if (tabName === 'dashboard') loadStatistics();
-        }
-        
-        async function loadStatistics() {
-            const response = await fetch('/api/statistics');
-            const data = await response.json();
-            
-            let html = '<div class="stat-item">';
-            html += `<h3>Общая статистика</h3>`;
-            html += `<p>Сайтов: ${data.statistics.total.sites}</p>`;
-            html += `<p>Страниц: ${data.statistics.total.pages}</p>`;
-            html += `<p>Лемм: ${data.statistics.total.lemmas}</p>`;
-            html += `<p>Индексация: ${data.statistics.total.indexing ? 'В процессе' : 'Завершена'}</p>`;
-            html += '</div>';
-            
-            data.statistics.detailed.forEach(site => {
-                html += '<div class="stat-item">';
-                html += `<h3>${site.name}</h3>`;
-                html += `<p>URL: ${site.url}</p>`;
-                html += `<p>Статус: ${site.status}</p>`;
-                html += `<p>Страниц: ${site.pages}</p>`;
-                html += `<p>Лемм: ${site.lemmas}</p>`;
-                if (site.error) html += `<p>Ошибка: ${site.error}</p>`;
-                html += '</div>';
-            });
-            
-            document.getElementById('statistics').innerHTML = html;
-        }
-        
-        async function startIndexing() {
-            const response = await fetch('/api/startIndexing');
-            const data = await response.json();
-            alert(data.result ? 'Индексация запущена' : data.error);
-        }
-        
-        async function stopIndexing() {
-            const response = await fetch('/api/stopIndexing');
-            const data = await response.json();
-            alert(data.result ? 'Индексация остановлена' : data.error);
-        }
-        
-        async function indexPage() {
-            const url = document.getElementById('pageUrl').value;
-            const response = await fetch('/api/indexPage?url=' + encodeURIComponent(url), {
-                method: 'POST'
-            });
-            const data = await response.json();
-            alert(data.result ? 'Страница добавлена в очередь' : data.error);
-        }
-        
-        async function performSearch() {
-            const query = document.getElementById('searchQuery').value;
-            const site = document.getElementById('searchSite').value;
-            
-            let url = `/api/search?query=${encodeURIComponent(query)}`;
-            if (site) url += `&site=${encodeURIComponent(site)}`;
-            
-            const response = await fetch(url);
-            const data = await response.json();
-            
-            if (!data.result) {
-                document.getElementById('searchResults').innerHTML = `<p>${data.error}</p>`;
-                return;
-            }
-            
-            let html = `<p>Найдено результатов: ${data.count}</p>`;
-            data.data.forEach(item => {
-                html += '<div class="search-item">';
-                html += `<h3><a href="${item.site}${item.uri}" target="_blank">${item.title}</a></h3>`;
-                html += `<p>${item.snippet}</p>`;
-                html += `<p>Релевантность: ${item.relevance.toFixed(2)}</p>`;
-                html += '</div>';
-            });
-            
-            document.getElementById('searchResults').innerHTML = html;
-        }
-        
-        loadStatistics();
-    </script>
+    <script src="/js/main.js"></script>
 </body>
 </html>

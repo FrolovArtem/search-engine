@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.springframework.stereotype.Service;
 import searchengine.dto.search.*;
+import searchengine.exception.EmptySearchQueryException;
 import searchengine.model.*;
 import searchengine.repository.*;
 
@@ -25,10 +26,7 @@ public class SearchService {
     public SearchResponse search(String query, String siteUrl, int offset, int limit) {
         log.info("Поисковый запрос: '{}', сайт: {}, offset: {}, limit: {}", query, siteUrl, offset, limit);
         
-        SearchResponse response = validateQuery(query);
-        if (response != null) {
-            return response;
-        }
+        validateQuery(query);
         
         Map<String, Integer> queryLemmas = lemmaService.getLemmas(query);
         log.debug("Извлечено {} лемм из запроса", queryLemmas.size());
@@ -39,19 +37,18 @@ public class SearchService {
         
         List<SiteEntity> sites = getSites(siteUrl);
         if (sites.isEmpty()) {
-            return createErrorResponse("Сайт не проиндексирован");
+            return createEmptyResponse();
         }
         
         List<SearchItem> results = performSearch(sites, queryLemmas);
         return createPaginatedResponse(results, offset, limit);
     }
     
-    private SearchResponse validateQuery(String query) {
+    private void validateQuery(String query) {
         if (query == null || query.trim().isEmpty()) {
             log.warn("Получен пустой поисковый запрос");
-            return createErrorResponse("Задан пустой поисковый запрос");
+            throw new EmptySearchQueryException("Задан пустой поисковый запрос");
         }
-        return null;
     }
     
     private SearchResponse createEmptyResponse() {
@@ -60,13 +57,6 @@ public class SearchService {
         response.setResult(true);
         response.setCount(0);
         response.setData(new ArrayList<>());
-        return response;
-    }
-    
-    private SearchResponse createErrorResponse(String error) {
-        SearchResponse response = new SearchResponse();
-        response.setResult(false);
-        response.setError(error);
         return response;
     }
     
